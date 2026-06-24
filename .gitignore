@@ -55,6 +55,9 @@ logs/
 *.db-wal
 *.db-shm
 
+# Agent lock files (see RULES.md)
+.lock/
+
 # Binary outputs
 bin/
 zigbee-cli
