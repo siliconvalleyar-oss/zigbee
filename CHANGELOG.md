@@ -20,6 +20,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - CLI administration console
 - Unit tests
 - Documentation
+- RULES.md — reglas de colaboración para agentes de IA
+- VERSION — archivo de control de versiones semántico
+- skills/validator.skill.md — skill del nodo validador (IDS/IPS)
+- ACTIVITY.md — registro de actividad de agentes
+- Repositorio git inicializado con tag v0.0.1
 
 ## [1.0.0] - 2025-01-01
 
