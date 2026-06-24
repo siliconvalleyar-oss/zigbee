@@ -63,17 +63,19 @@ zigbee> network create 11 0x1234
 
 ## Documentation
 
-- [Architecture](docs/ARCHITECTURE.md)
-- [API Reference](docs/API.md)
-- [Build Guide](docs/BUILD.md)
-- [Dependencies](docs/DEPENDENCIES.md)
-- [Network Protocol](docs/NETWORK.md)
-- [Security](docs/SECURITY.md)
-- [Roadmap](docs/ROADMAP.md)
-- [Contributing](docs/CONTRIBUTING.md)
-- [Rules](docs/RULES.md)
-- [TODO](docs/TODO.md)
+- [Architecture](ARCHITECTURE.md)
+- [API Reference](API.md)
+- [Build Guide](BUILD.md)
+- [Dependencies](DEPENDENCIES.md)
+- [Network Protocol](NETWORK.md)
+- [Security](SECURITY.md)
+- [Roadmap](ROADMAP.md)
+- [Contributing](CONTRIBUTING.md)
+- [Rules](RULES.md)
+- [TODO](TODO.md)
+- [Changelog](CHANGELOG.md)
+- [Activity Log](ACTIVITY.md)
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) for details.
+MIT License - See [LICENSE](../LICENSE) for details.
