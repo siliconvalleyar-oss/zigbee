@@ -1,159 +1,158 @@
-# RULES.md — Reglas de Colaboración para Agentes de IA
+# Reglas de Coordinación entre IAs
 
-> **Propósito:** Este documento establece las reglas obligatorias para todos los agentes de IA que trabajen en el proyecto Zigbee Mesh, con el fin de evitar conflictos, pisadas de código y garantizar que el código producido sea eficaz, consistente y mantenible.
-
----
-
-## 1. PREVENCIÓN DE CONFLICTOS ENTRE AGENTES
-
-### 1.1. Archivo de Bloqueo (LOCK)
-
-Cada vez que un agente va a **modificar** un archivo, debe **primero** verificar si existe un archivo `.lock/<ruta-del-archivo>.lock`. Si existe, **no debe modificarlo** hasta que el lock sea liberado. Si no existe, debe crearlo y luego proceder.
-
-Formato del lock:
-```
-.lock/<path-al-archivo>.lock
-```
-Ejemplo: `.lock/src/zigbee/zigbee_stack.cpp.lock`
-
-El contenido del lock debe incluir:
-- Nombre del agente
-- Timestamp de cuando se tomó el lock
-- Propósito del cambio
-
-### 1.2. Liberación de Locks
-
-Al terminar de modificar un archivo, el agente debe **eliminar** el archivo de lock correspondiente.
-
-### 1.3. Timeout de Locks
-
-Si un lock tiene más de **30 minutos**, se considera huérfano y cualquier agente puede reclamarlo (sobrescribirlo).
-
-### 1.4. Regla de Oro: No Pisar
-
-- **Nunca** sobrescribas un archivo completo a menos que hayas verificado que es seguro hacerlo (sin locks activos, sin cambios sin commit de otro agente).
-- Prefiere siempre `str_replace` para cambios quirúrgicos en lugar de `write_file` para archivos existentes.
+## Contexto
+Dos IAs trabajan en paralelo en el proyecto Zigbee Mesh C++20.
+La división evita conflictos de archivos y permite trabajo concurrente.
 
 ---
 
-## 2. COMUNICACIÓN Y COORDINACIÓN
+## División de Responsabilidades
 
-### 2.1. Archivo ACTIVITY.md
+### IA-1 (Arquitecto / Generador de Código)
+**Enfoque**: Generación de código fuente C++
 
-Cada agente que realice cambios debe **registrar su actividad** en `ACTIVITY.md` al comenzar y al terminar:
+**Archivos que PUEDE modificar/crear**:
+- `src/**/*.cpp` — Implementaciones
+- `include/**/*.h` — Headers
+- `include/**/*.hpp` — Headers alternativos
+- `examples/**/*.cpp` — Ejemplos
+- `tests/**/*.cpp` — Tests unitarios
+- `cmake/**` — Módulos CMake custom
 
-```markdown
-## [YYYY-MM-DD HH:MM] - [Agent Name]
+**NO TOCAR**:
+- `README.md`, `ARCHITECTURE.md`, `API.md`, `BUILD.md`, `DEPENDENCIES.md`
+- `NETWORK.md`, `SECURITY.md`, `ROADMAP.md`, `TODO.md`, `CONTRIBUTING.md`
+- `.github/workflows/**` — CI/CD
+- `skills/**` — Skill definitions
+- `configs/**` — Configuración por defecto
+- `CMakeLists.txt` — Solo tocar si agrega nuevos targets de código
 
-- **Archivos modificados:** [lista]
-- **Propósito:** [descripción breve]
-- **Estado:** [IN PROGRESS | COMPLETED | ROLLED BACK]
-```
+### IA-2 (Infraestructura / Documentación / DevOps)
+**Enfoque**: Git, documentación, CI/CD, configuración, skills
 
-### 2.2. Archivo TODO.md
+**Archivos que PUEDE modificar/crear**:
+- `README.md`, `ARCHITECTURE.md`, `API.md`, `BUILD.md`, `DEPENDENCIES.md`
+- `NETWORK.md`, `SECURITY.md`, `ROADMAP.md`, `TODO.md`, `CONTRIBUTING.md`
+- `CHANGELOG.md`, `LICENSE`
+- `.github/workflows/**` — CI/CD
+- `skills/**` — Skill definitions
+- `configs/**` — Configuración
+- `scripts/**` — Scripts de build/install
+- `tools/**` — Utilidades
+- `third_party/**` — Dependencias externas
+- `docs/**` — Documentación adicional
+- `CMakeLists.txt` — Solo tocar si agrega targets de infraestructura
+- Git operations: init, add, commit, push, tag
 
-Actualiza `TODO.md` después de cada cambio significativo:
-- Marca tareas completadas
-- Agrega nuevas tareas si es necesario
-- **No borres tareas** de otros agentes sin consultar
-
-### 2.3. Mensajes de Commit
-
-Usa **Conventional Commits** (formato en español o inglés, pero consistente):
-
-```
-tipo(alcance): descripción breve
-
-Tipos: feat, fix, docs, refactor, test, chore, style
-```
-
----
-
-## 3. CALIDAD DEL CÓDIGO
-
-### 3.1. Estándares
-
-- **C++20** obligatorio (concepts, coroutines, std::span, etc.)
-- **Clean Architecture** — respeta las capas (Core → HAL → Drivers → Zigbee Stack → Mesh → Services → CLI)
-- **Doxygen** en todas las API públicas
-- **Naming conventions** (ver CONTRIBUTING.md):
-  - Clases: `PascalCase`
-  - Métodos: `camelCase`
-  - Variables: `snake_case`
-  - Constantes: `UPPER_SNAKE_CASE`
-
-### 3.2. Validación
-
-Después de cualquier cambio de código:
-1. El proyecto debe **compilar** sin errores ni warnings
-2. Las **pruebas existentes** deben pasar
-3. Los **tests nuevos** deben escribirse para funcionalidad nueva
-
-### 3.3. No Dejar Código Muerto
-
-- Elimina variables, funciones y archivos no utilizados
-- No dejes stubs sin implementar (`TODO: implement`, `return {};`)
-- No dejes comentarios de código comentado
-
-### 3.4. Dependencias
-
-- No agregues una dependencia sin antes verificar que el proyecto ya no la tenga
-- Usa `gravity_index` para investigar servicios antes de integrarlos
-- Prefiere las bibliotecas ya listadas en `DEPENDENCIES.md`
+**NO TOCAR**:
+- `src/**/*.cpp` — No modificar implementaciones
+- `include/**/*.h` — No modificar headers
+- `examples/**/*.cpp` — No modificar ejemplos
+- `tests/**/*.cpp` — No modificar tests
 
 ---
 
-## 4. CONTROL DE VERSIONES
+## Reglas Generales
 
-### 4.1. Flujo Git
+1. **Comunicación**: Usar este archivo RULES.md para coordinar. Actualizar §Estado cuando se complete una tarea.
+2. **Commits**: Cada IA hace commit solo de SUS archivos. Nunca commitear archivos del otro dominio.
+3. **Merge conflicts**: Si hay conflicto, revisar RULES.md para determinar quién tiene prioridad.
+4. **Build verification**: Antes de commit, ejecutar `cmake -B build && cmake --build build` para verificar que el código compila.
+5. **No pseudocódigo**: Solo código C++20 real y compilable (regla de prompt.txt).
+6. **Idioma**: Código y docs en inglés. Comentarios en español si el usuario lo pide.
+7. **Archivos compartidos** (requieren coordinación):
+   - `CMakeLists.txt` — Coordinar cambios
+   - `configs/zigbee_mesh.conf` — IA-2 crea, IA-1 puede sugerir cambios
 
-```bash
-# Cada cambio significativo debe seguir:
-1. Pull/Rebase con main (si hay remote)
-2. Hacer cambios con locks
-3. git add <archivos>
-4. git commit -m "tipo(alcance): mensaje"
-5. git tag v<version>  # si aplica
+---
+
+### ⚜️ REGLA DE ORO: NUNCA ELIMINAR ARCHIVOS
+
+**Está terminantemente prohibido eliminar archivos del proyecto.**
+
+En lugar de eliminar, **mueve el archivo a la carpeta `olds/`** manteniendo la misma estructura de directorios:
+
+```
+# MAL ❌ — No hacer nunca
+rm src/zigbee/ieee802154.cpp
+
+# BIEN ✅ — Mover a olds/ conservando la ruta relativa
+mv src/zigbee/ieee802154.cpp olds/src/zigbee/ieee802154.cpp
 ```
 
-### 4.2. Versionado semántico
-
-Formato: `vMAJOR.MINOR.PATCH` (ver VERSION)
-
-- **MAJOR**: cambios incompatibles en API
-- **MINOR**: funcionalidad nueva compatible
-- **PATCH**: bug fixes
-
-El archivo `VERSION` debe actualizarse con cada tag.
-
-### 4.3. Tags
-
-Cada push con tag debe corresponder exactamente a la versión en `VERSION`.
+**Reglas específicas:**
+- La carpeta `olds/` replica la estructura del proyecto para facilitar búsquedas
+- `olds/` está en `.gitignore` — los archivos viejos **no se commitean**
+- Si un archivo ya no sirve pero tiene código que podría ser útil después, va a `olds/`
+- Si se reemplaza un archivo por una implementación nueva, el viejo va a `olds/`
+- Si se renombra un archivo, el nombre viejo queda en `olds/` como referencia
+- **Nunca** eliminar archivos aunque parezcan redundantes
+- Siempre que veas `rm`, `delete`, `remove` en código o comandos, **detente y usa `mv` a `olds/`**
 
 ---
 
-## 5. ARCHIVOS DEL PROYECTO
+## §Estado de Coordinación
 
-### 5.1. Skills
+### Tareas completadas por IA-1:
+- [x] Core types, result, event, logger, config, timer, bytebuffer (headers)
+- [x] Drivers: HAL, backend, MRF24J40, CC2530, XBee (headers + src)
+- [x] Zigbee stack: ieee802154, security_manager, zdo_layer, zigbee_stack (headers + src)
+- [x] Routing table + route discovery (headers + src)
+- [x] Mesh manager (headers + src)
+- [x] Services: network_manager, mesh, diagnostics, OTA (headers + src)
+- [x] Security service (headers + src)
+- [x] Storage manager (headers + src)
+- [x] CLI (headers + src)
+- [x] Main application entry point
 
-Los skills en `skills/` documentan el comportamiento de cada rol de nodo. Cualquier cambio de rol debe reflejarse en su skill correspondiente.
+### Tareas pendientes para IA-1:
+- [ ] **CRÍTICO**: Fix compilation errors (ver §Errores conocidos)
+- [ ] Verificar build con `cmake -B build && cmake --build build`
+- [ ] Tests unitarios completos
+- [ ] Tests de integración
+- [ ] Tests de mesh
+- [ ] Tests de routing
+- [ ] Tests de seguridad
+- [ ] Ejemplo end_device
 
-### 5.2. Documentación
+### Tareas completadas por IA-2:
+- (Ninguna aún — IA-2 empieza ahora)
 
-Mantén sincronizados: `README.md`, `ARCHITECTURE.md`, `API.md`, `CHANGELOG.md`.
-
-Incrementa `CHANGELOG.md` bajo `[Unreleased]` al hacer cambios.
+### Tareas pendientes para IA-2:
+- [ ] Git init + primer commit
+- [ ] README.md
+- [ ] ARCHITECTURE.md
+- [ ] API.md
+- [ ] BUILD.md
+- [ ] DEPENDENCIES.md
+- [ ] NETWORK.md
+- [ ] SECURITY.md
+- [ ] ROADMAP.md
+- [ ] TODO.md (actualizado)
+- [ ] CONTRIBUTING.md
+- [ ] CHANGELOG.md
+- [ ] LICENSE (MIT)
+- [ ] .github/workflows/build.yml
+- [ ] skills/ (7 archivos)
+- [ ] configs/zigbee_mesh.conf
+- [ ] scripts/ (build.sh, install.sh)
+- [ ] .gitignore
+- [ ] Doxygen config
 
 ---
 
-## 6. EJECUCIÓN
+## §Errores conocidos (para IA-1)
 
-Si un agente detecta que **otro agente está trabajando en el mismo archivo** (lock activo), debe:
-1. Esperar hasta 30 segundos
-2. Si el lock persiste, registrar una nota en `ACTIVITY.md` y continuar con otra tarea
-3. **Nunca** forzar la sobrescritura
+El código tiene errores de compilación que deben corregirse ANTES de que IA-2 haga el primer commit:
 
----
+1. **`src/zigbee/security_manager.cpp`**: `mbedtlsCcmEncrypt` — firma no coincide con el header. El header declara 7 parámetros pero el .cpp llama con 6.
 
-*Última actualización: 2026-06-24*
-*Versión: v0.0.1*
+2. **`src/zigbee/zigbee_stack.cpp`**: `DeviceEvent` y `EventType` deben calificarse como `core::DeviceEvent` y `core::EventType`.
+
+3. **`src/zigbee/zdo_layer.cpp`**: `TimerManager` debe ser `core::TimerManager`.
+
+4. **`include/drivers/backend.h`**: `SPIBackend` — métodos `transfer`, `readRegister`, etc. deben ser `const` o `fd_` debe ser `mutable`.
+
+5. **`include/core/logger.h`**: `mutex_` debe ser `mutable` para `getLevel() const`.
+
+6. **OpenSSL deprecado**: `AES_set_encrypt_key` y `AES_encrypt` están deprecados en OpenSSL 3.0. Usar `EVP_*` API.

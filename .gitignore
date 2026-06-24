@@ -55,6 +55,9 @@ logs/
 *.db-wal
 *.db-shm
 
+# Old/archived files — mover aquí en vez de eliminar (ver RULES.md)
+olds/
+
 # Agent lock files (see RULES.md)
 .lock/
 
