@@ -1,0 +1,430 @@
+# PROMPT UNIFICADO: ARQUITECTURA ZIGBEE MESH CON NODOS VALIDADORES
+
+Actúa como un **arquitecto senior de sistemas embebidos IoT** con más de 15 años de experiencia en redes Zigbee, seguridad en dispositivos de baja potencia, protocolos de malla IEEE 802.15.4 y desarrollo en C++ para entornos Linux embebido.
+
+---
+
+## CONTEXTO GENERAL
+
+Se requiere diseñar una **plataforma profesional de red Zigbee Mesh** basada en Raspberry Pi (y otros sistemas compatibles) que funcione en Ubuntu, Debian, Raspberry Pi OS, macOS y Windows. El proyecto debe ser **multiplataforma, modular, escalable y exportable** para futuros proyectos IoT (smart home, smart city, agricultura, monitoreo industrial, etc.).
+
+El diseño debe priorizar dos aspectos clave:
+
+1. **Eficiencia energética**, especialmente para nodos finales con batería (End Devices).
+2. **Seguridad robusta**, mediante la incorporación de **nodos validadores** que filtren y autentiquen mensajes antes de que consuman recursos en el resto de la red.
+
+---
+
+## OBJETIVO PRINCIPAL
+
+Diseñar una arquitectura de red Zigbee Mesh que incluya:
+
+- **Soporte completo para Zigbee PRO y Zigbee 3.0** (IEEE 802.15.4).
+- **Roles de dispositivo**: Coordinator, Router, End Device y opcionalmente Gateway/Bridge.
+- **Nodos validadores** (Validator Nodes) con capacidad de:
+  - Validar integridad y autenticidad de mensajes (MAC, firmas ligeras, claves de sesión).
+  - Filtrar mensajes duplicados, corruptos o malformados.
+  - Delegar validación a routers padres para ahorrar energía en End Devices.
+  - Mantener reputación de nodos y detectar ataques (replay, flooding, spoofing).
+  - Actuar en modo pasivo (solo alertas) o activo (descartar/aislar).
+
+---
+
+## REQUISITOS FUNCIONALES DEL SISTEMA
+
+### 1. Capas y módulos (Clean Architecture)
+
+El sistema debe estructurarse en capas bien definidas:
+
+- **Core**: gestión de hilos, eventos, estado global.
+- **HAL (Hardware Abstraction Layer)**: abstracción para SPI/UART/GPIO.
+- **Drivers**: controladores específicos para cada radio (MRF24J40, CC2530, CC2531, CC2652, EFR32, XBee).
+- **MAC Layer**: IEEE 802.15.4 MAC, CSMA-CA, manejo de canales.
+- **NWK Layer**: enrutamiento mesh, tablas de vecinos y rutas, descubrimiento de rutas.
+- **APS Layer**: binding, grupos, gestión de endpoints.
+- **ZDO Layer**: descubrimiento de dispositivos, comisionado, gestión de red.
+- **Application Layer**: lógica de usuario, clusters ZCL personalizados.
+- **Services Layer**: NetworkManager, MeshManager, SecurityManager, etc.
+- **Storage Layer**: persistencia con SQLite (dispositivos, rutas, topología, claves).
+- **CLI Layer**: interfaz de línea de comandos para administración.
+
+### 2. Roles de los nodos
+
+- **Coordinator**: Crea la red, asigna direcciones, actúa como Trust Center y puede ser validador principal.
+- **Router**: Extiende la red, reenvía mensajes, mantiene rutas y puede actuar como validador secundario.
+- **End Device**: Nodo final (puede ser sleepy), delega validación a su router padre.
+- **Validator Node (dedicado opcional)**: Nodo que no participa en enrutamiento, solo monitorea y valida tráfico (similar a un IDS/IPS).
+
+### 3. Nodos validadores (Validator Nodes)
+
+**Ubicación estratégica:** Preferentemente routers con alimentación constante o el propio coordinador.
+
+**Modos de operación:**
+- **Pasivo**: Escuchan, validan y generan alertas sin interferir en el enrutamiento.
+- **Activo**: Pueden descartar mensajes, notificar al emisor o reenviar solo los validados.
+
+**Funcionalidades específicas:**
+- Caché de validación (últimos N mensajes) para evitar reprocesar y detectar replay.
+- Claves de validación derivadas (compartidas con Trust Center) para verificar autenticidad sin descifrar todo el payload.
+- Sistema de reputación por nodo emisor (ratio de mensajes válidos/inválidos).
+- Umbrales de fallos que provocan aislamiento y notificación al Trust Center.
+- Registro de eventos de seguridad con sellado de tiempo y firma.
+
+**Ahorro energético:**
+- Delegación de validación a routers padres para End Devices sleepy.
+- Validación por lotes (agrupar mensajes con misma clave temporal y validar en una operación).
+- Reducción de retransmisiones al descartar tráfico inválido tempranamente.
+- Políticas adaptativas según carga horaria (validación estricta en horas pico, ligera en horas valle).
+
+**Seguridad:**
+- Trust Center reforzado con asistencia de validadores para distribución de claves.
+- Mecanismo de desafío-respuesta para nuevos nodos.
+- Rotación periódica de claves de validación vía OTA.
+- Detección de anomalías y reputación dinámica.
+
+### 4. Flujo de validación típico
+
+1. Emisor genera mensaje y lo firma con su clave de enlace (o clave de sesión compartida con validador).
+2. El mensaje viaja por la malla hasta el primer nodo validador (generalmente el router receptor).
+3. El validador:
+   - Verifica firma.
+   - Comprueba contador de secuencia (anti-replay).
+   - Consulta caché para duplicados.
+   - Evalúa reputación del emisor.
+4. Si es válido, reenvía el mensaje (marcado como "validado") hacia el destino.
+5. Si es inválido, descarta el mensaje, incrementa contador de fallos y, si supera umbral, inicia aislamiento.
+
+### 5. Almacenamiento y persistencia
+
+Usar SQLite para:
+- Tabla de dispositivos (direcciones, tipo, clave, reputación).
+- Tabla de rutas (destino, siguiente salto, costo, métricas).
+- Tabla de vecinos (LQI, RSSI, última comunicación).
+- Tabla de topología (relaciones padre-hijo).
+- Tabla de eventos de seguridad (logs firmados).
+- Tabla de claves (network key, link keys, claves de validación).
+
+### 6. Servicios (managers)
+
+- **NetworkManager**: creación/unión/salida de red, escaneo.
+- **MeshManager**: gestión de malla, healing, reconfiguración.
+- **RouteManager**: descubrimiento y mantenimiento de rutas.
+- **SecurityManager**: gestión de claves, cifrado, autenticación.
+- **DeviceManager**: registro, información, eliminación de dispositivos.
+- **TopologyManager**: visión global de la red.
+- **DiagnosticsManager**: health checks, heartbeats, estadísticas.
+- **OTAUpdateManager**: actualizaciones de firmware seguras.
+
+### 7. CLI (Command Line Interface)
+
+Crear ejecutable `zigbee-cli` con comandos como:
+
+- `network create|start|stop|join|leave|scan|status`
+- `device list|info|remove|ping`
+- `mesh topology|routes|neighbors|diagnostics`
+- `security keys|rotate|show`
+- `validator enable|disable|set-threshold|reputation`
+- `ota update|status`
+
+### 8. Logging y monitoreo
+
+- Usar **spdlog** con niveles: TRACE, DEBUG, INFO, WARN, ERROR, FATAL.
+- Registro estructurado (JSON) para integración con sistemas de análisis.
+- Métricas clave:
+  - Tasa de mensajes válidos vs. inválidos por emisor.
+  - Latencia añadida por validación (objetivo < 10 ms).
+  - Ahorro energético estimado en End Devices.
+  - Número de alertas de seguridad y tiempo de respuesta ante ataques.
+
+---
+
+## REQUISITOS TÉCNICOS Y DE IMPLEMENTACIÓN (DISEÑO)
+
+- **Lenguaje:** C++20 (uso de concepts, corrutinas, std::span, etc.).
+- **Compilación:** CMake (mínimo 3.15) con soporte para Linux, macOS y Windows.
+- **Dependencias oficiales:** Priorizar bibliotecas consolidadas como ZBOSS, zigbee-herdsman, Silicon Labs EmberZNet, Texas Instruments Z-Stack, o en su defecto implementar capas propias. Incluir también: Boost (asio, filesystem), OpenSSL, SQLite3, fmt, spdlog, GoogleTest.
+- **Hardware:** Soporte para radios vía SPI o UART. Cada driver debe ser configurable en tiempo de compilación (opciones CMake).
+- **Restricciones de recursos:**
+  - RAM < 512 KB, flash < 2 MB para nodos embebidos (aunque en Raspberry Pi hay más, se debe diseñar para escalar a dispositivos más pequeños).
+  - Algoritmos de validación ligeros (AES-128, SHA-256 solo cuando necesario).
+  - Tablas de reputación y cachés eficientes (hash maps con expiración).
+  - Sobrecarga de tráfico por validación < 10% adicional.
+
+---
+
+## ENTREGABLES ESPERADOS POR PARTE DE LA IA
+
+Debes generar un **documento único en Markdown** que contenga:
+
+1. **Arquitectura general del sistema** (diagrama de capas, interacciones entre módulos).
+2. **Detalle de los nodos validadores**:
+   - Ubicación en la pila Zigbee (entre MAC y NWK).
+   - Estructura de datos para mensajes validados.
+   - Algoritmo de reputación (pseudocódigo con umbrales y expiración).
+   - Flujos de validación para mensajes unicast, broadcast y multicast (diagramas de secuencia en ASCII o Mermaid).
+3. **Definición de interfaces** entre el módulo de validación y las capas adyacentes.
+4. **Políticas de seguridad**:
+   - Distribución y rotación de claves de validación.
+   - Mecanismo de desafío-respuesta para joins.
+   - Gestión de listas blanca/negra.
+5. **Estrategias de ahorro energético**:
+   - Delegación a routers padres.
+   - Validación por lotes.
+   - Políticas adaptativas.
+6. **Especificación de logs y eventos** de seguridad (formato, contenido, firma).
+7. **Plan de pruebas** para escenarios de ataque y alto tráfico.
+8. **Análisis de trade-offs** entre seguridad, rendimiento y consumo, justificando decisiones.
+9. **Estructura de carpetas** (similar a la especificada en el contexto) y lista de archivos necesarios (sin generar código, solo enumeración).
+10. **Documentación requerida** (README, ARCHITECTURE, API, TODO, ROADMAP, NETWORK, SECURITY, BUILD, DEPENDENCIES) con contenido real y útil para desarrolladores.
+11. **Skills** (coordinator, router, end_device, commissioning, diagnostics, ota_update, mesh_monitor) con responsabilidades, eventos, interfaces y dependencias.
+
+---
+
+## PREGUNTAS ABIERTAS QUE DEBES RESPONDER EN EL DOCUMENTO
+
+- ¿Dónde es más eficiente ubicar los nodos validadores en la topología de malla para minimizar latencia y maximizar cobertura?
+- ¿Cómo se maneja la validación de mensajes broadcast?
+- ¿Qué sucede si un nodo validador falla o se desconecta? ¿Cómo se recupera la red sin perder capacidad de validación?
+- ¿Es posible que los propios End Devices participen en validación colaborativa (distribuida) para reducir carga en routers?
+- ¿Cómo se evita que un atacante suplante a un validador legítimo?
+
+---
+
+## FORMATO DE SALIDA
+
+- Documento único en **Markdown** con secciones claras, tablas, listas y diagramas ASCII (o Mermaid si lo prefieres).
+- Lenguaje técnico, preciso, orientado a ingenieros de sistemas.
+- Incluir referencias a estándares Zigbee y buenas prácticas de seguridad en redes de baja potencia.
+
+---
+
+## INSTRUCCIÓN FINAL
+
+**No generes código C++ ni implementaciones concretas.** Concéntrate en el **diseño conceptual, los flujos, las interfaces, las políticas de operación y la arquitectura global**. El resultado debe ser una especificación técnica completa que sirva como base para un equipo de desarrollo.
+
+El documento debe ser autocontenido y cubrir todos los puntos mencionados anteriormente, sin omitir ninguno.
+
+
+
+
+
+
+=== INICIO DEL PROMPT ===
+
+Actúa como un arquitecto senior de sistemas embebidos IoT con más de 15 años de experiencia en redes Zigbee, seguridad y bajo consumo. Debes generar un proyecto profesional completo y compilable en C++20 para una red Zigbee Mesh entre Raspberry Pi, utilizando radios IEEE 802.15.4 (MRF24J40, CC2530, CC2652, XBee). El proyecto debe ser multiplataforma (Ubuntu, Debian, Raspberry Pi OS, macOS, Windows) y seguir Clean Architecture.
+
+OBJETIVO PRINCIPAL: Diseñar una red Zigbee Mesh con nodos validadores que filtren y autentiquen mensajes (MAC, firmas, claves de sesión), detecten y aíslen nodos maliciosos (reputación, umbrales), ahorren energía delegando validación a routers padres para End Devices sleepy, y mantengan registros de seguridad con rotación de claves OTA.
+
+ESTRUCTURA OBLIGATORIA: Debes generar TODOS los siguientes archivos con contenido real (no placeholders). La estructura debe ser:
+
+zigbee_mesh/
+├── CMakeLists.txt
+├── README.md
+├── LICENSE
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── ROADMAP.md
+├── TODO.md
+├── API.md
+├── ARCHITECTURE.md
+├── NETWORK.md
+├── SECURITY.md
+├── BUILD.md
+├── DEPENDENCIES.md
+├── docs/
+├── scripts/
+│   ├── build.sh
+│   ├── install_deps.sh
+│   ├── run_coordinator.sh
+│   ├── run_router.sh
+│   └── run_end_device.sh
+├── cmake/
+├── configs/
+│   ├── coordinator.conf
+│   ├── router.conf
+│   ├── end_device.conf
+│   └── validator_defaults.conf
+├── include/
+│   ├── core/
+│   │   ├── application.hpp
+│   │   ├── event_loop.hpp
+│   │   ├── state_machine.hpp
+│   │   ├── config.hpp
+│   │   ├── logger.hpp
+│   │   └── types.hpp
+│   ├── zigbee/
+│   │   ├── nwk_layer.hpp
+│   │   ├── aps_layer.hpp
+│   │   ├── zdo_layer.hpp
+│   │   ├── security_manager.hpp
+│   │   └── ieee802154.hpp
+│   ├── mesh/
+│   │   ├── routing_table.hpp
+│   │   ├── neighbor_table.hpp
+│   │   ├── mesh_manager.hpp
+│   │   └── validator.hpp
+│   ├── routing/
+│   │   ├── route_discovery.hpp
+│   │   └── aodv.hpp
+│   ├── drivers/
+│   │   ├── radio.hpp
+│   │   ├── mrf24j40.hpp
+│   │   ├── cc2530.hpp
+│   │   ├── xbee.hpp
+│   │   ├── hal_spi.hpp
+│   │   └── hal_uart.hpp
+│   ├── security/
+│   │   ├── aes.hpp
+│   │   ├── key_manager.hpp
+│   │   ├── trust_center.hpp
+│   │   └── reputation.hpp
+│   ├── storage/
+│   │   ├── database.hpp
+│   │   └── topology_cache.hpp
+│   ├── services/
+│   │   ├── network_manager.hpp
+│   │   ├── mesh_manager.hpp
+│   │   ├── device_manager.hpp
+│   │   ├── commissioning_manager.hpp
+│   │   ├── ota_manager.hpp
+│   │   ├── gateway_manager.hpp
+│   │   └── diagnostics_manager.hpp
+│   ├── cli/
+│   │   └── cli_handler.hpp
+│   └── utils/
+│       ├── crc.hpp
+│       ├── hex.hpp
+│       └── timer.hpp
+├── src/
+│   ├── main.cpp
+│   ├── core/
+│   │   ├── application.cpp
+│   │   ├── event_loop.cpp
+│   │   ├── state_machine.cpp
+│   │   └── config.cpp
+│   ├── zigbee/
+│   │   ├── nwk_layer.cpp
+│   │   ├── aps_layer.cpp
+│   │   ├── zdo_layer.cpp
+│   │   ├── security_manager.cpp
+│   │   └── ieee802154.cpp
+│   ├── mesh/
+│   │   ├── routing_table.cpp
+│   │   ├── neighbor_table.cpp
+│   │   ├── mesh_manager.cpp
+│   │   └── validator.cpp
+│   ├── routing/
+│   │   ├── route_discovery.cpp
+│   │   └── aodv.cpp
+│   ├── drivers/
+│   │   ├── mrf24j40.cpp
+│   │   ├── cc2530.cpp
+│   │   ├── xbee.cpp
+│   │   ├── hal_spi.cpp
+│   │   └── hal_uart.cpp
+│   ├── security/
+│   │   ├── aes.cpp
+│   │   ├── key_manager.cpp
+│   │   ├── trust_center.cpp
+│   │   └── reputation.cpp
+│   ├── storage/
+│   │   ├── database.cpp
+│   │   └── topology_cache.cpp
+│   ├── services/
+│   │   ├── network_manager.cpp
+│   │   ├── mesh_manager.cpp
+│   │   ├── device_manager.cpp
+│   │   ├── commissioning_manager.cpp
+│   │   ├── ota_manager.cpp
+│   │   ├── gateway_manager.cpp
+│   │   └── diagnostics_manager.cpp
+│   ├── cli/
+│   │   └── cli_handler.cpp
+│   └── utils/
+│       ├── crc.cpp
+│       ├── hex.cpp
+│       └── timer.cpp
+├── tests/
+│   ├── unit/
+│   │   ├── test_nwk.cpp
+│   │   ├── test_routing.cpp
+│   │   ├── test_security.cpp
+│   │   ├── test_validator.cpp
+│   │   └── test_storage.cpp
+│   ├── integration/
+│   ├── mesh/
+│   └── stress/
+├── examples/
+│   ├── coordinator_example.cpp
+│   ├── router_example.cpp
+│   └── end_device_example.cpp
+├── skills/
+│   ├── coordinator.skill.md
+│   ├── router.skill.md
+│   ├── end_device.skill.md
+│   ├── commissioning.skill.md
+│   ├── diagnostics.skill.md
+│   ├── ota_update.skill.md
+│   ├── mesh_monitor.skill.md
+│   └── validator.skill.md
+├── third_party/
+└── tools/
+
+CONTENIDO EXIGIDO PARA CADA ARCHIVO:
+
+1. Archivos de cabecera (.hpp): Deben contener declaraciones de clases, métodos y atributos completos, con documentación Doxygen. Ejemplo para validator.hpp:
+   - Definir ValidationContext, Validator class con init, validate, updateReputation, setMode, getReputationTable. Incluir métodos privados: checkMAC, checkReplay, checkWhitelist, notifySecurityEvent.
+
+2. Archivos de implementación (.cpp): Deben contener implementaciones reales (aunque básicas) de todos los métodos declarados. No se aceptan stubs vacíos.
+
+3. CMakeLists.txt: Debe incluir proyecto C++20, encontrar dependencias (Boost, OpenSSL, SQLite3, fmt, spdlog, GTest), opciones USE_MRF24J40, USE_CC2530, USE_XBEE, ENABLE_TESTS, ENABLE_LOGGING. Compilar ejecutable zigbee-cli y pruebas. Instalación y scripts.
+
+4. Documentación Markdown: Cada archivo debe tener contenido sustancial:
+   - README.md: descripción, características, compilación, uso rápido.
+   - ARCHITECTURE.md: capas, módulos, interacciones, diagrama ASCII.
+   - API.md: listado de clases públicas con métodos y parámetros.
+   - NETWORK.md: topología mesh, direccionamiento, enrutamiento.
+   - SECURITY.md: claves, cifrado, Trust Center, validación, reputación.
+   - BUILD.md: pasos detallados para compilar en cada plataforma.
+   - DEPENDENCIES.md: lista de bibliotecas, versiones y enlaces de descarga.
+   - TODO.md, ROADMAP.md, CHANGELOG.md, CONTRIBUTING.md con contenido realista.
+
+5. Skills: Cada archivo .skill.md debe definir objetivo, responsabilidades, eventos, interfaces, dependencias y flujo operativo. El skill validator.skill.md debe describir cómo opera el nodo validador, sus modos, umbrales y alertas.
+
+6. Archivos de configuración:
+   - coordinator.conf: PAN ID, canal, clave de red, permit_join, max_children, y parámetros de validación (validator_mode, reputation_threshold, cache_size).
+   - router.conf: similar, con permit_join=false.
+   - end_device.conf: incluye sleepy=true, poll_interval, y delegación de validación al padre.
+   - validator_defaults.conf: valores por defecto para todos los validadores.
+
+7. Scripts: build.sh (compila con CMake), install_deps.sh (instala dependencias en Ubuntu), run_coordinator.sh, run_router.sh, run_end_device.sh (lanzan el CLI con la configuración correspondiente).
+
+8. Ejemplos: coordinator_example.cpp (crea coordinador, inicia red y permite joins), router_example.cpp (se une como router), end_device_example.cpp (se une como end device y envía datos periódicos).
+
+9. Pruebas unitarias: test_validator.cpp (prueba validación, reputación y filtrado). Otras pruebas para NWK, routing, seguridad y almacenamiento.
+
+10. Integración de nodos validadores: La capa de validación debe ubicarse entre MAC y NWK (ver ARCHITECTURE.md). El flujo de validación debe ser detallado en un diagrama de secuencia (ASCII o Mermaid). Se deben incluir políticas de rotación de claves de validación y mecanismo de desafío-respuesta para joins.
+
+INSTRUCCIONES ADICIONALES:
+- Todo el código debe ser compilable en Ubuntu 22.04 con las dependencias indicadas.
+- No uses pseudocódigo. Genera implementaciones reales que funcionen (aunque sean simples).
+- Incluye manejo de errores y logging en todos los módulos.
+- Asegura que el proyecto sea modular y que se puedan añadir nuevos radios o servicios fácilmente.
+- El prompt debe generar TODO el contenido en una sola respuesta, sin pedir confirmaciones intermedias.
+
+FORMATO DE SALIDA: Entrega la respuesta como un único bloque de texto que contenga todos los archivos enumerados, con su contenido completo. Cada archivo debe estar precedido por una línea como "# Archivo: ruta/al/archivo" o usando bloques de código con la ruta en el nombre, por ejemplo: "// --- include/zigbee/validator.hpp ---". Asegúrate de incluir todos los archivos de la lista, sin omitir ninguno. La respuesta debe ser autocontenida y lista para ser extraída y desplegada en un sistema de archivos.
+
+ADVERTENCIA: Si no generas todos los archivos con contenido real, el proyecto no será funcional. Por lo tanto, dedica el esfuerzo necesario para completar cada uno de ellos.
+
+Inicia la generación ahora.
+
+=== FIN DEL PROMPT ===
+ 
+
+
+
+
+
+
+
+

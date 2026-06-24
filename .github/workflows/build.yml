@@ -1,0 +1,105 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+        build_type: [Debug, Release]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake pkg-config \
+          libssl-dev libsqlite3-dev
+        
+    - name: Configure
+      run: |
+        mkdir build && cd build
+        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DZIGBEE_BUILD_TESTS=ON
+      
+    - name: Build
+      run: cmake --build build -j$(nproc)
+      
+    - name: Test
+      working-directory: build
+      run: ctest --output-on_failure
+
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install dependencies
+      run: brew install cmake openssl sqlite
+    
+    - name: Configure
+      run: |
+        mkdir build && cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+      
+    - name: Build
+      run: cmake --build build -j$(sysctl -n hw.ncpu)
+
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install vcpkg
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git
+        .\vcpkg\bootstrap-vcpkg.bat
+        
+    - name: Install dependencies
+      run: .\vcpkg\vcpkg install openssl sqlite3 gtest
+    
+    - name: Configure
+      run: |
+        mkdir build
+        cd build
+        cmake .. -G "Visual Studio 17 2022" -A x64 `
+          -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake
+      
+    - name: Build
+      run: cmake --build build --config Release
+
+  static-analysis:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-tidy cppcheck
+        
+    - name: Configure
+      run: |
+        mkdir build && cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Debug
+        
+    - name: Run clang-tidy
+      run: |
+        find . -name "*.cpp" | xargs clang-tidy -p build \
+          --checks=*,-llvmlibc-*,-modernize-use-trailing-return-type
+        
+    - name: Run cppcheck
+      run: |
+        cppcheck --enable=all --std=c++20 \
+          --suppress=missingIncludeSystem \
+          include/ src/

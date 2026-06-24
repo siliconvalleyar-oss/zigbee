@@ -1,0 +1,65 @@
+# Build directories
+build/
+cmake-build-*/
+out/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Compiled files
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+compile_commands.json
+
+# Testing
+Testing/
+*.gcno
+*.gcda
+*.gcov
+coverage/
+htmlcov/
+
+# Documentation
+docs/_build/
+doxygen_output/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+logs/
+
+# Database files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Binary outputs
+bin/
+zigbee-cli
+*_example
+
+# Third party
+third_party/build/
+third_party/downloads/

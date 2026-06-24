@@ -1,0 +1,685 @@
+# Proyecto Zigbee Mesh Multiplataforma en C++20
+
+Actúa como un arquitecto senior de software embebido, Linux, IoT y redes Zigbee.
+
+Debes generar un proyecto profesional completo en C++20 para crear una red Zigbee Mesh basada en Raspberry Pi utilizando transceptores Zigbee compatibles IEEE 802.15.4.
+
+OBJETIVO GENERAL
+Crear una plataforma Zigbee Mesh distribuida que funcione en:
+
+* Ubuntu
+* Debian
+* Raspberry Pi OS
+* macOS
+* Windows
+
+El proyecto debe compilarse principalmente en Ubuntu utilizando CMake.
+
+La arquitectura debe ser completamente modular, escalable y exportable para futuros proyectos IoT.
+
+---
+
+## REQUISITOS DE ARQUITECTURA
+
+Implementar Clean Architecture.
+
+Separar:
+
+* Core
+* Drivers
+* Zigbee Stack
+* Network Layer
+* Application Layer
+* Services
+* Storage
+* Logging
+* CLI
+* Examples
+* Tests
+
+Utilizar:
+
+* C++20
+* CMake
+* Git
+* GitHub Actions
+* Doxygen
+* Markdown Documentation
+
+---
+
+## ESTRUCTURA DE CARPETAS
+
+Generar una estructura similar a:
+
+project_root/
+
+├── CMakeLists.txt
+├── README.md
+├── LICENSE
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── ROADMAP.md
+├── TODO.md
+├── API.md
+├── ARCHITECTURE.md
+├── NETWORK.md
+├── SECURITY.md
+├── BUILD.md
+├── DEPENDENCIES.md
+├── docs
+│
+├── scripts
+│
+├── cmake
+│
+├── include
+│   ├── zigbee
+│   ├── network
+│   ├── mesh
+│   ├── security
+│   ├── storage
+│   └── utils
+│
+├── src
+│   ├── core
+│   ├── drivers
+│   ├── zigbee
+│   ├── mesh
+│   ├── routing
+│   ├── services
+│   ├── storage
+│   ├── security
+│   └── cli
+│
+├── tests
+│
+├── examples
+│
+├── configs
+│
+├── tools
+│
+├── skills
+│
+└── third_party
+
+---
+
+## DOCUMENTACION OBLIGATORIA
+
+Generar completamente:
+
+README.md
+ARCHITECTURE.md
+API.md
+TODO.md
+ROADMAP.md
+NETWORK.md
+SECURITY.md
+BUILD.md
+DEPENDENCIES.md
+
+Cada documento debe contener información real y útil.
+
+---
+
+## SKILLS
+
+Crear carpeta skills.
+
+Generar:
+
+skills/
+├── coordinator.skill.md
+├── router.skill.md
+├── end_device.skill.md
+├── commissioning.skill.md
+├── diagnostics.skill.md
+├── ota_update.skill.md
+└── mesh_monitor.skill.md
+
+Definir responsabilidades de cada skill.
+
+---
+
+## SISTEMA ZIGBEE
+
+Implementar soporte para:
+
+Zigbee PRO
+
+IEEE 802.15.4
+
+Compatible Zigbee 3.0
+
+Debe incluir:
+
+* Formación de red
+* Descubrimiento de dispositivos
+* Routing mesh
+* Neighbor tables
+* Routing tables
+* Binding
+* Commissioning
+* Rejoin
+* Heartbeat
+* Device Announce
+* Leave
+* Reconnect
+
+---
+
+## ROLES DE DISPOSITIVOS
+
+Implementar:
+
+1. Coordinator
+
+Responsabilidades:
+
+* Crear PAN
+* Gestión de red
+* Asignación de direcciones
+* Seguridad
+
+2. Router
+
+Responsabilidades:
+
+* Repetidor mesh
+* Reenvío de paquetes
+* Mantener rutas
+
+3. End Device
+
+Responsabilidades:
+
+* Sensores
+* Actuadores
+* Bajo consumo
+
+---
+
+## RED MESH ENTRE RASPBERRY PI
+
+Diseñar topología mesh donde varias Raspberry Pi puedan actuar como:
+
+Coordinator
+Router
+End Device
+
+La red debe soportar:
+
+Pi Coordinator
+Pi Router 1
+Pi Router 2
+Pi Router N
+Pi End Device N
+
+Generar diagramas ASCII.
+
+---
+
+## ABSTRACCION DE HARDWARE
+
+Crear interfaz HAL.
+
+Soportar:
+
+MRF24J40
+CC2530
+CC2531
+CC2652
+EFR32
+XBee
+
+Cada radio debe tener:
+
+Driver
+SPI/UART backend
+Configuración
+Inicialización
+
+---
+
+## DEPENDENCIAS OFICIALES
+
+Investigar y utilizar bibliotecas oficiales cuando existan.
+
+Priorizar:
+
+zigbee-herdsman
+ZBOSS
+Silicon Labs EmberZNet
+Texas Instruments Z-Stack
+libusb
+boost
+fmt
+spdlog
+protobuf
+OpenSSL
+
+Generar instrucciones de descarga.
+
+---
+
+## SEGURIDAD
+
+Implementar:
+
+AES-128
+
+Network Keys
+
+Link Keys
+
+Trust Center
+
+Secure Join
+
+Device Authentication
+
+Whitelist
+
+Blacklist
+
+---
+
+## SERVICIOS
+
+Crear servicios:
+
+NetworkManager
+
+MeshManager
+
+RouteManager
+
+SecurityManager
+
+DeviceManager
+
+TopologyManager
+
+StorageManager
+
+DiagnosticsManager
+
+OTAUpdateManager
+
+---
+
+## BASE DE DATOS
+
+Implementar almacenamiento para:
+
+Device Database
+
+Network Database
+
+Topology Database
+
+Routing Database
+
+Usar:
+
+SQLite
+
+---
+
+## CLI
+
+Crear consola administrativa:
+
+zigbee-cli
+
+Comandos:
+
+network create
+network join
+network leave
+network scan
+network status
+
+device list
+device info
+device remove
+
+mesh topology
+mesh routes
+mesh diagnostics
+
+security keys
+
+---
+
+## LOGGING
+
+Implementar:
+
+spdlog
+
+niveles:
+
+TRACE
+DEBUG
+INFO
+WARN
+ERROR
+FATAL
+
+---
+
+## TESTING
+
+Agregar:
+
+GoogleTest
+
+Unit Tests
+
+Integration Tests
+
+Mesh Tests
+
+Routing Tests
+
+Security Tests
+
+---
+
+## CI/CD
+
+Crear:
+
+GitHub Actions
+
+Build Ubuntu
+
+Build macOS
+
+Build Windows
+
+Static Analysis
+
+Clang-Tidy
+
+Cppcheck
+
+Unit Tests
+
+---
+
+## EXPORTACION
+
+El proyecto debe poder convertirse posteriormente en:
+
+* Gateway IoT
+* Zigbee Home Automation
+* Smart City
+* Industrial Monitoring
+* Sensor Networks
+* Smart Agriculture
+
+---
+
+## GENERACION DE CODIGO
+
+Generar:
+
+1. Árbol completo de carpetas.
+2. Todos los archivos .hpp.
+3. Todos los archivos .cpp.
+4. Todos los CMakeLists.txt.
+5. Todos los documentos Markdown.
+6. Diagramas de arquitectura.
+7. Diagramas de red mesh.
+8. Ejemplos de uso.
+9. API pública.
+10. Código compilable.
+
+No generar pseudocódigo.
+
+Generar implementaciones reales listas para compilar.
+
+
+
+# PROMPT PROFESIONAL PARA IA - ZIGBEE MESH CON NODOS VALIDADORES
+
+---
+
+**Actúa como un arquitecto senior de sistemas embebidos IoT con más de 15 años de experiencia en redes Zigbee, seguridad en dispositivos de baja potencia y protocolos de malla IEEE 802.15.4.**
+
+**Contexto:**  
+Se requiere diseñar una **red Zigbee Mesh profesional** compuesta por Raspberry Pi como nodos principales (coordinadores, routers y end devices), utilizando radios IEEE 802.15.4 compatibles con Zigbee PRO y Zigbee 3.0. El objetivo principal es **optimizar el consumo energético y la seguridad** mediante la incorporación de **nodos validadores** que actúen como filtros de mensajes antes de que estos sean procesados por el resto de la red.
+
+---
+
+## OBJETIVO DEL PROYECTO
+
+Diseñar una arquitectura de red Zigbee Mesh que incluya **nodos validadores** (validator nodes) con las siguientes capacidades:
+
+1. **Validación de integridad y autenticidad** de todos los mensajes entrantes (usando MAC, firmas ligeras o claves de sesión efímeras).
+2. **Filtrado inteligente** para descartar mensajes duplicados, corruptos, malformados o que no cumplan con las políticas de seguridad definidas.
+3. **Ahorro energético** al evitar que los nodos finales (especialmente end devices con batería) desperdicien recursos procesando mensajes inválidos o no relevantes.
+4. **Análisis de reputación** de los nodos emisores, detectando posibles ataques (replay, flooding, spoofing) y tomando acciones correctivas (aislamiento, alerta, rekey).
+
+---
+
+## REQUISITOS FUNCIONALES DE LOS NODOS VALIDADORES
+
+- **Ubicación:** Los nodos validadores deben ubicarse estratégicamente en la red (preferentemente routers con alimentación constante, o el propio coordinador) para que actúen como **puntos de control** de tráfico.
+- **Modo de operación:**
+  - **Modo pasivo:** Escuchan el tráfico y validan sin intervenir en el enrutamiento (solo generan alertas).
+  - **Modo activo:** Pueden descartar mensajes, notificar al emisor o reenviar solo los mensajes validados.
+- **Caché de validación:** Mantener un historial breve (últimos N mensajes) para evitar reprocesar mensajes ya validados y detectar ataques de repetición.
+- **Sincronización de llaves:** Deben compartir claves de red y de enlace con el Trust Center, pero también poseer **claves de validación específicas** (derivadas) que permitan verificar la autenticidad sin descifrar completamente el payload.
+
+---
+
+## REQUISITOS DE AHORRO ENERGÉTICO
+
+- **Sleepy End Devices:** Los end devices con batería deben poder **delegar** la validación de mensajes a su router padre (que actúa como validador). Así, el end device solo despierta cuando recibe un mensaje ya validado y específico para él.
+- **Validación por lotes:** En lugar de validar cada mensaje individualmente, los nodos validadores pueden agrupar varios mensajes con una misma clave temporal y validar el lote con una sola operación criptográfica.
+- **Reducción de retransmisiones:** Al descartar mensajes inválidos tempranamente, se reduce el tráfico innecesario en la malla, lo que ahorra energía en todos los nodos (menos colisiones, menos retransmisiones).
+- **Políticas de validación adaptativas:** Según la carga de la red o la hora del día, se puede ajustar el nivel de validación (ej. validación estricta en horario laboral, validación ligera en horario nocturno).
+
+---
+
+## REQUISITOS DE SEGURIDAD
+
+- **Trust Center reforzado:** El coordinador actúa como Trust Center, pero los nodos validadores pueden asistir en la distribución de claves de sesión y en la rotación de las mismas.
+- **Mecanismo de desafío-respuesta:** Para nodos nuevos que se unen, el validador puede solicitar un desafío antes de aceptar sus mensajes, evitando que nodos no autorizados inunden la red.
+- **Detección de anomalías:** Los validadores deben implementar un sistema de **reputación** que puntúe a cada nodo según el ratio de mensajes válidos vs. inválidos. Si un nodo supera un umbral de fallos, se le niega el servicio y se notifica al Trust Center.
+- **Actualización segura de claves:** Las claves de validación deben poder renovarse periódicamente sin interrumpir la comunicación, usando un mecanismo OTA seguro.
+- **Registro de eventos de seguridad:** Cada validador debe generar logs (con sellado de tiempo y firma) de todos los intentos de mensajes inválidos, para análisis forense.
+
+---
+
+## ARQUITECTURA PROPUESTA (NIVEL CONCEPTUAL)
+
+- **Capa de validación:** Se ubica entre la capa MAC y la capa NWK. Cada mensaje recibido pasa primero por un **módulo de validación** que verifica:
+  - MAC (Message Authentication Code) con clave de red o de enlace.
+  - Secuencia anti-replay (contador de frame).
+  - Tamaño y formato del payload.
+  - Lista blanca/negra de direcciones origen.
+  - Reputación del nodo origen.
+- **Capa de decisión:** Si el mensaje es válido, se reenvía a la capa NWK para su procesamiento normal. Si es inválido, se descarta y se actualiza la estadística del nodo origen.
+- **Capa de coordinación:** Los validadores se comunican entre sí para compartir información de reputación y coordinar la expulsión de nodos maliciosos.
+
+---
+
+## ROLES ESPECÍFICOS EN LA RED
+
+- **Coordinador + Validador Principal:** Además de crear la red y actuar como Trust Center, el coordinador puede tener un módulo validador que supervise todo el tráfico de alto nivel.
+- **Routers + Validadores Secundarios:** Cada router puede validar los mensajes que recibe de sus hijos y vecinos, reduciendo la carga del coordinador.
+- **End Devices + Clientes de Validación:** Los end devices pueden delegar la validación a su router padre, pero también pueden implementar una validación ligera propia para mensajes críticos.
+- **Nodo Validador Dedicado (opcional):** Se puede añadir un nodo especial que no participe en el enrutamiento, solo dedicado a la validación y monitoreo de seguridad (similar a un IDS/IPS en redes cableadas).
+
+---
+
+## FLUJO DE VALIDACIÓN TÍPICO
+
+1. Un nodo emisor genera un mensaje y lo firma con su clave de enlace (o con una clave de sesión compartida con el validador).
+2. El mensaje viaja por la malla hasta llegar a un nodo validador (puede ser el primer router que lo recibe).
+3. El validador:
+   - Verifica la firma.
+   - Comprueba que el contador de secuencia sea mayor al último recibido.
+   - Consulta su caché para descartar duplicados.
+   - Evalúa la reputación del emisor.
+4. Si todo es correcto, el validador reenvía el mensaje (posiblemente con una marca de "validado") hacia el destino final.
+5. Si falla, el mensaje se descarta, se incrementa el contador de fallos del emisor y, si supera el umbral, se inicia un procedimiento de aislamiento.
+
+---
+
+## MÉTRICAS Y MONITOREO
+
+- **Tasa de mensajes válidos vs. inválidos** por nodo emisor.
+- **Latencia adicional** introducida por la validación (debe ser < 10 ms en condiciones normales).
+- **Ahorro energético estimado** en end devices (comparativa con/sin validación delegada).
+- **Número de alertas de seguridad** generadas por nodo validador.
+- **Tiempo de respuesta ante un ataque** (desde la detección hasta el aislamiento).
+
+---
+
+## ENTREGABLES ESPERADOS DE LA IA
+
+1. **Documento de arquitectura** (en Markdown) que describa en detalle los componentes del sistema de validación, su interacción con el resto de capas Zigbee y los flujos de datos.
+2. **Diagramas de secuencia** (en texto ASCII o Mermaid) que muestren el proceso de validación para mensajes unicast, broadcast y multicast.
+3. **Definición de interfaces** entre el módulo de validación y las capas MAC/NWK, incluyendo estructuras de datos para los mensajes validados.
+4. **Algoritmos de reputación y filtrado** explicados en pseudocódigo, con criterios de umbrales y tiempos de expiración.
+5. **Políticas de seguridad** recomendadas para la distribución de claves de validación y la rotación periódica.
+6. **Especificación de logs y eventos** que deben generarse para auditoría y diagnóstico.
+7. **Plan de pruebas** para validar el funcionamiento de los nodos validadores en escenarios de ataque (replay, flooding, spoofing) y de alto tráfico.
+8. **Análisis de trade-offs** entre seguridad, rendimiento y consumo energético, justificando las decisiones de diseño.
+
+---
+
+## RESTRICCIONES TÉCNICAS
+
+- Los nodos tienen memoria RAM limitada (menos de 512 KB) y flash (< 2 MB), por lo que los algoritmos de validación deben ser ligeros.
+- Se prioriza el uso de criptografía simétrica (AES-128) y funciones hash rápidas (SHA-256 solo cuando sea estrictamente necesario).
+- La red puede tener hasta 200 nodos, por lo que las tablas de reputación y cachés deben ser eficientes (hash maps con expiración).
+- Los mensajes de validación adicionales no deben incrementar el tráfico en más de un 10% respecto a una red sin validación.
+
+---
+
+## PREGUNTAS ABIERTAS PARA LA IA
+
+- ¿Dónde es más eficiente ubicar los nodos validadores en la topología de malla para minimizar la latencia y maximizar la cobertura?
+- ¿Cómo se maneja la validación de mensajes broadcast (que no tienen un destino único)?
+- ¿Qué sucede si un nodo validador falla o se desconecta? ¿Cómo se recupera la red sin perder la capacidad de validación?
+- ¿Es posible que los propios end devices participen en la validación colaborativa (validación distribuida) para reducir la carga en los routers?
+- ¿Cómo se evita que un atacante pueda suplantar a un validador legítimo?
+
+---
+
+## FORMATO DE SALIDA DESEADO
+
+- Documento único en Markdown, bien estructurado con secciones, tablas y diagramas ASCII.
+- Lenguaje claro, preciso y orientado a ingenieros de sistemas.
+- Incluir referencias a estándares Zigbee y buenas prácticas de seguridad en redes de baja potencia.
+
+---
+
+**INSTRUCCIÓN FINAL:**  
+Basado en los requisitos anteriores, genera una **arquitectura completa para una red Zigbee Mesh con nodos validadores**, detallando su funcionamiento, integración con el stack Zigbee, estrategias de ahorro energético y mecanismos de seguridad. No generes código C++ ni implementaciones concretas; concéntrate en el diseño conceptual, los flujos, las interfaces y las políticas de operación. El resultado debe ser un documento técnico que sirva como especificación para un equipo de desarrollo.
+
+
+
+
+**COPIA Y PEGA EL SIGUIENTE PROMPT EN TU CHAT CON LA IA (ChatGPT, Claude, etc.)**
+
+---
+
+```
+Actúa como un arquitecto senior de sistemas embebidos IoT con más de 15 años de experiencia en redes Zigbee, seguridad en dispositivos de baja potencia y protocolos de malla IEEE 802.15.4.
+
+CONTEXTO:
+Se requiere diseñar una red Zigbee Mesh profesional compuesta por Raspberry Pi como nodos principales (coordinadores, routers y end devices), utilizando radios IEEE 802.15.4 compatibles con Zigbee PRO y Zigbee 3.0. El objetivo principal es optimizar el consumo energético y la seguridad mediante la incorporación de nodos validadores que actúen como filtros de mensajes antes de que estos sean procesados por el resto de la red.
+
+OBJETIVO DEL PROYECTO:
+Diseñar una arquitectura de red Zigbee Mesh que incluya nodos validadores (validator nodes) con las siguientes capacidades:
+1. Validación de integridad y autenticidad de todos los mensajes entrantes (usando MAC, firmas ligeras o claves de sesión efímeras).
+2. Filtrado inteligente para descartar mensajes duplicados, corruptos, malformados o que no cumplan con las políticas de seguridad definidas.
+3. Ahorro energético al evitar que los nodos finales (especialmente end devices con batería) desperdicien recursos procesando mensajes inválidos o no relevantes.
+4. Análisis de reputación de los nodos emisores, detectando posibles ataques (replay, flooding, spoofing) y tomando acciones correctivas (aislamiento, alerta, rekey).
+
+REQUISITOS FUNCIONALES DE LOS NODOS VALIDADORES:
+- Ubicación: Los nodos validadores deben ubicarse estratégicamente en la red (preferentemente routers con alimentación constante, o el propio coordinador) para que actúen como puntos de control de tráfico.
+- Modo de operación: Modo pasivo (escuchan y validan sin intervenir en el enrutamiento, solo generan alertas) y modo activo (pueden descartar mensajes, notificar al emisor o reenviar solo los mensajes validados).
+- Caché de validación: Mantener un historial breve (últimos N mensajes) para evitar reprocesar mensajes ya validados y detectar ataques de repetición.
+- Sincronización de llaves: Deben compartir claves de red y de enlace con el Trust Center, pero también poseer claves de validación específicas (derivadas) que permitan verificar la autenticidad sin descifrar completamente el payload.
+
+REQUISITOS DE AHORRO ENERGÉTICO:
+- Sleepy End Devices: Los end devices con batería deben poder delegar la validación de mensajes a su router padre (que actúa como validador). Así, el end device solo despierta cuando recibe un mensaje ya validado y específico para él.
+- Validación por lotes: En lugar de validar cada mensaje individualmente, los nodos validadores pueden agrupar varios mensajes con una misma clave temporal y validar el lote con una sola operación criptográfica.
+- Reducción de retransmisiones: Al descartar mensajes inválidos tempranamente, se reduce el tráfico innecesario en la malla, lo que ahorra energía en todos los nodos (menos colisiones, menos retransmisiones).
+- Políticas de validación adaptativas: Según la carga de la red o la hora del día, se puede ajustar el nivel de validación (ej. validación estricta en horario laboral, validación ligera en horario nocturno).
+
+REQUISITOS DE SEGURIDAD:
+- Trust Center reforzado: El coordinador actúa como Trust Center, pero los nodos validadores pueden asistir en la distribución de claves de sesión y en la rotación de las mismas.
+- Mecanismo de desafío-respuesta: Para nodos nuevos que se unen, el validador puede solicitar un desafío antes de aceptar sus mensajes, evitando que nodos no autorizados inunden la red.
+- Detección de anomalías: Los validadores deben implementar un sistema de reputación que puntúe a cada nodo según el ratio de mensajes válidos vs. inválidos. Si un nodo supera un umbral de fallos, se le niega el servicio y se notifica al Trust Center.
+- Actualización segura de claves: Las claves de validación deben poder renovarse periódicamente sin interrumpir la comunicación, usando un mecanismo OTA seguro.
+- Registro de eventos de seguridad: Cada validador debe generar logs (con sellado de tiempo y firma) de todos los intentos de mensajes inválidos, para análisis forense.
+
+ARQUITECTURA PROPUESTA (NIVEL CONCEPTUAL):
+- Capa de validación: Se ubica entre la capa MAC y la capa NWK. Cada mensaje recibido pasa primero por un módulo de validación que verifica: MAC (Message Authentication Code) con clave de red o de enlace, secuencia anti-replay (contador de frame), tamaño y formato del payload, lista blanca/negra de direcciones origen, reputación del nodo origen.
+- Capa de decisión: Si el mensaje es válido, se reenvía a la capa NWK para su procesamiento normal. Si es inválido, se descarta y se actualiza la estadística del nodo origen.
+- Capa de coordinación: Los validadores se comunican entre sí para compartir información de reputación y coordinar la expulsión de nodos maliciosos.
+
+ROLES ESPECÍFICOS EN LA RED:
+- Coordinador + Validador Principal: Además de crear la red y actuar como Trust Center, el coordinador puede tener un módulo validador que supervise todo el tráfico de alto nivel.
+- Routers + Validadores Secundarios: Cada router puede validar los mensajes que recibe de sus hijos y vecinos, reduciendo la carga del coordinador.
+- End Devices + Clientes de Validación: Los end devices pueden delegar la validación a su router padre, pero también pueden implementar una validación ligera propia para mensajes críticos.
+- Nodo Validador Dedicado (opcional): Se puede añadir un nodo especial que no participe en el enrutamiento, solo dedicado a la validación y monitoreo de seguridad (similar a un IDS/IPS en redes cableadas).
+
+FLUJO DE VALIDACIÓN TÍPICO:
+1. Un nodo emisor genera un mensaje y lo firma con su clave de enlace (o con una clave de sesión compartida con el validador).
+2. El mensaje viaja por la malla hasta llegar a un nodo validador (puede ser el primer router que lo recibe).
+3. El validador: verifica la firma, comprueba que el contador de secuencia sea mayor al último recibido, consulta su caché para descartar duplicados, evalúa la reputación del emisor.
+4. Si todo es correcto, el validador reenvía el mensaje (posiblemente con una marca de "validado") hacia el destino final.
+5. Si falla, el mensaje se descarta, se incrementa el contador de fallos del emisor y, si supera el umbral, se inicia un procedimiento de aislamiento.
+
+MÉTRICAS Y MONITOREO:
+- Tasa de mensajes válidos vs. inválidos por nodo emisor.
+- Latencia adicional introducida por la validación (debe ser < 10 ms en condiciones normales).
+- Ahorro energético estimado en end devices (comparativa con/sin validación delegada).
+- Número de alertas de seguridad generadas por nodo validador.
+- Tiempo de respuesta ante un ataque (desde la detección hasta el aislamiento).
+
+ENTREGABLES ESPERADOS DE LA IA:
+1. Documento de arquitectura (en Markdown) que describa en detalle los componentes del sistema de validación, su interacción con el resto de capas Zigbee y los flujos de datos.
+2. Diagramas de secuencia (en texto ASCII o Mermaid) que muestren el proceso de validación para mensajes unicast, broadcast y multicast.
+3. Definición de interfaces entre el módulo de validación y las capas MAC/NWK, incluyendo estructuras de datos para los mensajes validados.
+4. Algoritmos de reputación y filtrado explicados en pseudocódigo, con criterios de umbrales y tiempos de expiración.
+5. Políticas de seguridad recomendadas para la distribución de claves de validación y la rotación periódica.
+6. Especificación de logs y eventos que deben generarse para auditoría y diagnóstico.
+7. Plan de pruebas para validar el funcionamiento de los nodos validadores en escenarios de ataque (replay, flooding, spoofing) y de alto tráfico.
+8. Análisis de trade-offs entre seguridad, rendimiento y consumo energético, justificando las decisiones de diseño.
+
+RESTRICCIONES TÉCNICAS:
+- Los nodos tienen memoria RAM limitada (menos de 512 KB) y flash (< 2 MB), por lo que los algoritmos de validación deben ser ligeros.
+- Se prioriza el uso de criptografía simétrica (AES-128) y funciones hash rápidas (SHA-256 solo cuando sea estrictamente necesario).
+- La red puede tener hasta 200 nodos, por lo que las tablas de reputación y cachés deben ser eficientes (hash maps con expiración).
+- Los mensajes de validación adicionales no deben incrementar el tráfico en más de un 10% respecto a una red sin validación.
+
+PREGUNTAS ABIERTAS PARA LA IA:
+- ¿Dónde es más eficiente ubicar los nodos validadores en la topología de malla para minimizar la latencia y maximizar la cobertura?
+- ¿Cómo se maneja la validación de mensajes broadcast (que no tienen un destino único)?
+- ¿Qué sucede si un nodo validador falla o se desconecta? ¿Cómo se recupera la red sin perder la capacidad de validación?
+- ¿Es posible que los propios end devices participen en la validación colaborativa (validación distribuida) para reducir la carga en los routers?
+- ¿Cómo se evita que un atacante pueda suplantar a un validador legítimo?
+
+FORMATO DE SALIDA DESEADO:
+- Documento único en Markdown, bien estructurado con secciones, tablas y diagramas ASCII.
+- Lenguaje claro, preciso y orientado a ingenieros de sistemas.
+- Incluir referencias a estándares Zigbee y buenas prácticas de seguridad en redes de baja potencia.
+
+INSTRUCCIÓN FINAL:
+Basado en los requisitos anteriores, genera una arquitectura completa para una red Zigbee Mesh con nodos validadores, detallando su funcionamiento, integración con el stack Zigbee, estrategias de ahorro energético y mecanismos de seguridad. No generes código C++ ni implementaciones concretas; concéntrate en el diseño conceptual, los flujos, las interfaces y las políticas de operación. El resultado debe ser un documento técnico que sirva como especificación para un equipo de desarrollo.
+```
+
+
